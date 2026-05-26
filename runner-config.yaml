@@ -1,0 +1,24 @@
+log:
+  level: info
+
+runner:
+  file: .runner
+  capacity: 1
+  timeout: 3h
+  insecure: false
+  fetch_timeout: 5s
+  fetch_interval: 2s
+
+cache:
+  enabled: true
+
+container:
+  network: "infra-project_idp_network"
+  privileged: false
+  options:
+  valid_volumes:
+    - /var/run/docker.sock
+  docker_host: ""
+
+host:
+  workdir_parent:

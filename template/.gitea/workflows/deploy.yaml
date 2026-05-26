@@ -21,7 +21,7 @@ jobs:
   test-and-sonar:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Run tests
@@ -41,7 +41,7 @@ jobs:
       PORT_BACK: ${{ secrets.DEV_PORT_BACK }}
       PORT_FRONT: ${{ secrets.DEV_PORT_FRONT }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Build Docker Images
         run: |
           docker build -t ${PROJECT_NAME}-backend:${GITHUB_SHA} -f Dockerfile.backend . || echo "No backend dockerfile"
@@ -55,7 +55,7 @@ jobs:
     needs: test-and-sonar
     if: github.event_name == 'workflow_dispatch'
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Set Variables
         run: |
           echo "ENV_NAME=${{ github.event.inputs.environment }}" >> $GITHUB_ENV

@@ -1,4 +1,4 @@
-version: '3.8'
+
 
 services:
   gitea_db:
@@ -30,6 +30,7 @@ services:
       - GITEA__server__SSH_DOMAIN=localhost
       - GITEA__server__SSH_PORT=2222
       - GITEA__actions__ENABLED=true
+      - GITEA__actions__DEFAULT_ACTIONS_URL=github
     ports:
       - "3000:3000"
       - "2222:22"
@@ -51,6 +52,9 @@ services:
     volumes:
       - ./data/gitea-runner:/data
       - /var/run/docker.sock:/var/run/docker.sock
+      - ./runner-config.yaml:/config.yaml
+    environment:
+      - CONFIG_FILE=/config.yaml
     networks:
       - idp_network
 
