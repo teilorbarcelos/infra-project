@@ -1,0 +1,114 @@
+
+
+services:
+  gitea_db:
+    image: postgres:15
+    container_name: gitea_db
+    restart: always
+    environment:
+      - POSTGRES_USER=${GITEA_DB_USER:-gitea}
+      - POSTGRES_PASSWORD=${GITEA_DB_PASSWD:-gitea}
+      - POSTGRES_DB=${GITEA_DB_NAME:-gitea}
+    volumes:
+      - ./data/gitea_db:/var/lib/postgresql/data
+    networks:
+      - idp_network
+
+  gitea:
+    image: gitea/gitea:latest
+    container_name: gitea
+    restart: always
+    environment:
+      - USER_UID=1000
+      - USER_GID=1000
+      - GITEA__database__DB_TYPE=postgres
+      - GITEA__database__HOST=gitea_db:5432
+      - GITEA__database__NAME=${GITEA_DB_NAME:-gitea}
+      - GITEA__database__USER=${GITEA_DB_USER:-gitea}
+      - GITEA__database__PASSWD=${GITEA_DB_PASSWD:-gitea}
+      - GITEA__security__INSTALL_LOCK=true
+      - GITEA__server__SSH_DOMAIN=localhost
+      - GITEA__server__SSH_PORT=2222
+      - GITEA__actions__ENABLED=true
+      - GITEA__actions__DEFAULT_ACTIONS_URL=github
+    ports:
+      - "3000:3000"
+      - "2222:22"
+    volumes:
+      - ./data/gitea:/data
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    networks:
+      - idp_network
+    depends_on:
+      - gitea_db
+
+  gitea-runner:
+    image: gitea/act_runner:latest
+    container_name: gitea-runner
+    restart: always
+    env_file:
+      - runner.env
+    volumes:
+      - ./data/gitea-runner:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./runner-config.yaml:/config.yaml
+    environment:
+      - CONFIG_FILE=/config.yaml
+    networks:
+      - idp_network
+
+  sonarqube_db:
+    image: postgres:15
+    container_name: sonarqube_db
+    environment:
+      - POSTGRES_USER=${SONAR_DB_USER:-sonar}
+      - POSTGRES_PASSWORD=${SONAR_DB_PASSWD:-sonar}
+      - POSTGRES_DB=${SONAR_DB_NAME:-sonarqube}
+    volumes:
+      - sonarqube_db:/var/lib/postgresql/data
+      - sonarqube_db_data:/var/lib/postgresql
+    networks:
+      - idp_network
+
+  sonarqube:
+    image: sonarqube:community
+    container_name: sonarqube
+    depends_on:
+      - sonarqube_db
+    environment:
+      - SONAR_JDBC_URL=jdbc:postgresql://sonarqube_db:5432/${SONAR_DB_NAME:-sonarqube}
+      - SONAR_JDBC_USERNAME=${SONAR_DB_USER:-sonar}
+      - SONAR_JDBC_PASSWORD=${SONAR_DB_PASSWD:-sonar}
+    ports:
+      - "9001:9000"
+    volumes:
+      - sonarqube_data:/opt/sonarqube/data
+      - sonarqube_extensions:/opt/sonarqube/extensions
+      - sonarqube_logs:/opt/sonarqube/logs
+    networks:
+      - idp_network
+
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    restart: always
+    ports:
+      - "9000:9000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+    networks:
+      - idp_network
+
+volumes:
+  sonarqube_db:
+  sonarqube_db_data:
+  sonarqube_data:
+  sonarqube_extensions:
+  sonarqube_logs:
+  portainer_data:
+
+networks:
+  idp_network:
+    driver: bridge

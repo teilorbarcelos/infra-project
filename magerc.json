@@ -1,0 +1,21 @@
+{
+  "scripts": [
+    {
+      "name": "Start Infrastructure",
+      "command": "make start"
+    },
+    {
+      "name": "Stop Infrastructure",
+      "command": "make stop"
+    },
+    {
+      "name": "Teardown Infrastructure",
+      "command": "make teardown"
+    },
+    {
+      "name": "Create New Project",
+      "command": "make create-project NAME=test PREFIX=35"
+    }
+  ],
+  "replacements": []
+}
