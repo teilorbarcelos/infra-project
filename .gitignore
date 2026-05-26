@@ -1,0 +1,15 @@
+# Volumes de Dados do Docker
+# Ignora todo o conteúdo gerado pelos bancos de dados, repositórios locais e configurações
+data/
+*/data/
+
+# Arquivos de ambiente e tokens gerados dinamicamente
+runner.env
+*.env
+
+# Arquivos de sistema operacional
+.DS_Store
+Thumbs.db
+
+# Ignora projetos de teste criados caso você rode o create-project na mesma pasta (opcional)
+# Mas por padrão o create-project cria os projetos um nível acima (../)

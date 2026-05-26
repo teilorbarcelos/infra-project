@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  backend:
+    image: ${PROJECT_NAME}-backend:${CI_COMMIT_SHA:-latest}
+    container_name: ${PROJECT_NAME}_backend_${ENV_NAME}
+    restart: always
+    ports:
+      - "${PORT_BACK:-3000}:80"
+    environment:
+      - ENV=${ENV_NAME}
+    networks:
+      - idp_network
+
+  frontend:
+    image: ${PROJECT_NAME}-frontend:${CI_COMMIT_SHA:-latest}
+    container_name: ${PROJECT_NAME}_frontend_${ENV_NAME}
+    restart: always
+    ports:
+      - "${PORT_FRONT:-8080}:80"
+    environment:
+      - REACT_APP_BACKEND_URL=http://localhost:${PORT_BACK:-3000}
+    networks:
+      - idp_network
+
+networks:
+  idp_network:
+    external: true
