@@ -46,7 +46,7 @@ cd infra-project
 
 **2. Inicie a mágica:**
 ```bash
-make start
+make infra-up
 ```
 *(Se estiver usando mage, pode usar: `mage run "Start Infrastructure"`)*
 
@@ -143,12 +143,12 @@ graph TD
 
 Para pausar os serviços (sem perder dados):
 ```bash
-make stop
+make infra-down
 ```
 
 Para destruir completamente a infraestrutura (🚨 **Isso apagará todos os repositórios e dados do banco**):
 ```bash
-make teardown
+make infra-teardown
 ```
 
 ---
