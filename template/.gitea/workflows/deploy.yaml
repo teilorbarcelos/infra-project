@@ -2,7 +2,7 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - develop
+      - main
   workflow_dispatch:
     inputs:
       environment:
@@ -35,7 +35,7 @@ jobs:
   build-and-deploy-develop:
     runs-on: ubuntu-latest
     needs: test-and-sonar
-    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     env:
       ENV_NAME: "develop"
       PORT_BACK: ${{ secrets.DEV_PORT_BACK }}
@@ -46,6 +46,8 @@ jobs:
         run: |
           docker build -t ${PROJECT_NAME}-backend:${GITHUB_SHA} -f Dockerfile.backend . || echo "No backend dockerfile"
           docker build -t ${PROJECT_NAME}-frontend:${GITHUB_SHA} -f Dockerfile.frontend . || echo "No frontend dockerfile"
+          docker tag ${PROJECT_NAME}-backend:${GITHUB_SHA} ${PROJECT_NAME}-backend:develop-ok-${GITHUB_SHA} || true
+          docker tag ${PROJECT_NAME}-frontend:${GITHUB_SHA} ${PROJECT_NAME}-frontend:develop-ok-${GITHUB_SHA} || true
       - name: Deploy to Develop
         run: |
           docker compose -f docker-compose.yml up -d
@@ -56,13 +58,23 @@ jobs:
     if: github.event_name == 'workflow_dispatch'
     steps:
       - uses: actions/checkout@v4
-      - name: Set Variables
+      - name: Verify Hierarchy & Set Variables
         run: |
           echo "ENV_NAME=${{ github.event.inputs.environment }}" >> $GITHUB_ENV
           if [ "${{ github.event.inputs.environment }}" = "staging" ]; then
+            if ! docker image inspect ${PROJECT_NAME}-backend:develop-ok-${GITHUB_SHA} > /dev/null 2>&1 && ! docker image inspect ${PROJECT_NAME}-frontend:develop-ok-${GITHUB_SHA} > /dev/null 2>&1; then
+              echo "::error::Pipeline bloqueado: Você deve fazer o deploy em Develop antes do Staging para este commit!"
+              exit 1
+            fi
             echo "PORT_BACK=${{ secrets.STG_PORT_BACK }}" >> $GITHUB_ENV
             echo "PORT_FRONT=${{ secrets.STG_PORT_FRONT }}" >> $GITHUB_ENV
+            docker tag ${PROJECT_NAME}-backend:${GITHUB_SHA} ${PROJECT_NAME}-backend:staging-ok-${GITHUB_SHA} || true
+            docker tag ${PROJECT_NAME}-frontend:${GITHUB_SHA} ${PROJECT_NAME}-frontend:staging-ok-${GITHUB_SHA} || true
           else
+            if ! docker image inspect ${PROJECT_NAME}-backend:staging-ok-${GITHUB_SHA} > /dev/null 2>&1 && ! docker image inspect ${PROJECT_NAME}-frontend:staging-ok-${GITHUB_SHA} > /dev/null 2>&1; then
+              echo "::error::Pipeline bloqueado: Você deve fazer o deploy em Staging antes da Produção para este commit!"
+              exit 1
+            fi
             echo "PORT_BACK=${{ secrets.PRD_PORT_BACK }}" >> $GITHUB_ENV
             echo "PORT_FRONT=${{ secrets.PRD_PORT_FRONT }}" >> $GITHUB_ENV
           fi
