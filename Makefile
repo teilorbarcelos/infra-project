@@ -1,12 +1,12 @@
-.PHONY: start stop teardown create-project
+.PHONY: infra-up infra-down infra-teardown create-project
 
-start:
+infra-up:
 	bash setup-infra.sh
 
-stop:
+infra-down:
 	docker compose -f docker-compose.shared.yml stop
 
-teardown:
+infra-teardown:
 	docker compose -f docker-compose.shared.yml down -v
 	rm -rf data/
 
