@@ -66,7 +66,7 @@ Assim que os containers estiverem rodando, você pode acessar as ferramentas atr
 | :--- | :--- | :--- | :--- | :--- |
 | **Gitea** | [http://localhost:3000](http://localhost:3000) | `admin` | `admin` | Conta criada automaticamente. |
 | **SonarQube** | [http://localhost:9001](http://localhost:9001) | `admin` | `admin` | Pedirá para trocar a senha no 1º login. |
-| **Portainer** | [http://localhost:9000](http://localhost:9000) | - | - | Crie seu admin no primeiro acesso. |
+| **Portainer** | [http://localhost:9002](http://localhost:9002) | - | - | Crie seu admin no primeiro acesso. |
 
 ---
 
@@ -124,7 +124,7 @@ graph TD
             GT[Gitea :3000]
             GR[Act Runner]
             SQ[SonarQube :9001]
-            PT[Portainer :9000]
+            PT[Portainer :9002]
         end
         
         subgraph Projeto Exemplo - Prefix 31
