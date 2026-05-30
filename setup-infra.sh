@@ -46,4 +46,4 @@ fi
 echo "Infrastructure is up!"
 echo "Gitea: http://localhost:3000 (Create the first user to be admin)"
 echo "SonarQube: http://localhost:9001 (admin/admin)"
-echo "Portainer: http://localhost:9000"
+echo "Portainer: http://localhost:9002"
